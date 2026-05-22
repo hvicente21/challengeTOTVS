@@ -11,10 +11,10 @@ public class AlertaOportunidade extends Alerta{
     //construtores
     public AlertaOportunidade() {}
 
-    public AlertaOportunidade(String tipo, String nivel, String descricao, String produtoRelacionado, boolean potenciaUpsell) {
+    public AlertaOportunidade(String tipo, String nivel, String descricao, String produtoRelacionado, boolean potencialUpsell) {
         super(tipo, nivel, descricao);
-        this.produtoRelacionado = produtoRelacionado;
-        this.potencialUpsell = potenciaUpsell;
+        setProdutoRelacionado(produtoRelacionado);
+        setPotencialUpsell(potencialUpsell);
     }
     //getters e setters
 
@@ -30,11 +30,11 @@ public class AlertaOportunidade extends Alerta{
         }
     }
 
-    public boolean isPotenciaUpsell() {
+    public boolean isPotencialUpsell() {
         return potencialUpsell;
     }
 
-    public void setPotenciaUpsell(boolean potenciaUpsell) {
+    public void setPotencialUpsell(boolean potenciaUpsell) {
         this.potencialUpsell = potenciaUpsell;
         if (potenciaUpsell){
             mensagemUpsell ="Existe oportunidade de upsell";
