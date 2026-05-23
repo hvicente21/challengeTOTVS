@@ -1,4 +1,5 @@
 package br.com.fiap.bean;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,5 +81,86 @@ public class AnalisadorTexto {
         }
         return false;
     }
+
+    public String analisarSentimento(String texto){
+        int positivas = 0, negativas = 0;
+        texto = texto.toLowerCase();
+        List<String> palavras = Arrays.asList(texto.split(" "));
+
+        for (String palavra : palavras){
+            if (palavrasPositivas.contains(palavra)){
+                positivas++;
+            }
+
+            if (palavrasNegativas.contains(palavra)){
+                negativas++;
+            }
+        }
+        if (positivas > negativas){
+            return "Positivo";
+        } else if (positivas == negativas) {
+            return "Neutro";
+        }else{
+            return "Negativo";
+        }
+    }
+
+    public List<String> extrairPalavrasChave(String texto){
+        texto = texto.toLowerCase();
+        List<String> palavras = Arrays.asList(texto.split(" "));
+        List<String> palavrasChave = new ArrayList<>();
+
+        for (String palavra : palavras){
+            if (palavrasRisco.contains(palavra)|| palavrasOportunidade.contains(palavra)){
+                if (!palavrasChave.contains(palavra)){
+                    palavrasChave.add(palavra);
+                }
+            }
+        }
+        return palavrasChave;
+    }
+
+    public String gerarResumo(String texto){
+        if (texto.length() <=100){
+            return texto;
+        }
+
+        return texto.substring(0,100) + "...";
+    }
+
+    public double calcularNps(String texto){
+        int positivas = 0, negativas = 0, total = 0;
+        texto = texto.toLowerCase();
+        List<String> palavras = Arrays.asList(texto.split(" "));
+        for (String palavra : palavras){
+            if (palavrasPositivas.contains(palavra)){
+                positivas++;
+            }
+            if (palavrasNegativas.contains(palavra)){
+                negativas++;
+            }
+        }
+
+        total = positivas + negativas;
+        if (total == 0){
+            return 5.0;
+        }
+
+        return (double)(positivas * 10) / total;
+    }
+
+    public void analisar(Meeting meeting){
+        String texto = meeting.getTranscricao().toLowerCase();
+        boolean risco = detectarRisco(texto);
+        boolean oportunidade = detectarOportunidade(texto);
+        double nota = calcularNps(texto);
+        meeting.setNotaNps(nota);
+
+
+        System.out.println("Risco: " + risco);
+        System.out.println("Oportunidade: " + oportunidade);
+        System.out.println("Nota NPS: " + nota);
+    }
+
 
 }
