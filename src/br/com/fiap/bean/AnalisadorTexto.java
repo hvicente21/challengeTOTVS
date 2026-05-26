@@ -151,6 +151,9 @@ public class AnalisadorTexto {
 
     public void analisar(Meeting meeting){
         String texto = meeting.getTranscricao().toLowerCase();
+        String sentimento = analisarSentimento(texto);
+        List<String> palavrasChave = extrairPalavrasChave(texto);
+        String resumo = gerarResumo(texto);
         boolean risco = detectarRisco(texto);
         boolean oportunidade = detectarOportunidade(texto);
         double nota = calcularNps(texto);
@@ -159,6 +162,9 @@ public class AnalisadorTexto {
 
         System.out.println("Risco: " + risco);
         System.out.println("Oportunidade: " + oportunidade);
+        System.out.println("Sentimento: " + sentimento);
+        System.out.println("Palavras-chave: " + palavrasChave);
+        System.out.println("Resumo: " + resumo);
         System.out.println("Nota NPS: " + nota);
     }
 
