@@ -4,29 +4,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ProcessadorTexto {
-    //construtor
-    public ProcessadorTexto() {}
-    //metodos da classe
-    public String removerPontuacao(String texto){
-        if (texto == null || texto.isBlank()){
-            return "";
-        }
+
+    // Corrigido de 'limpiarTexto' para 'limparTexto'
+    public String limparTexto(String texto) {
+        if (texto == null) return "";
+        texto = texto.toLowerCase();
+        return removerPontuacao(texto);
+    }
+
+    public String removerPontuacao(String texto) {
         return texto.replaceAll("[^a-zA-ZÀ-ÿ0-9 ]", "");
     }
 
-    public String limparTexto(String texto){
-        if (texto == null || texto.isBlank()) {
-            return "";
-        }
-        texto = texto.toLowerCase();
-        texto = removerPontuacao(texto);
-        return texto.trim();
-    }
-
-    public List<String> tokenizarTexto(String texto){
+    public List<String> tokenizar(String texto) {
+        // Ajustado aqui internamente também para garantir
         texto = limparTexto(texto);
         return Arrays.asList(texto.split("\\s+"));
-
     }
-
 }

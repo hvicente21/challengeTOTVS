@@ -3,31 +3,23 @@ package br.com.fiap.bean;
 import javax.swing.*;
 
 public class Alerta {
-    //atributos
+
     private String tipo;
     private String nivel;
     private String descricao;
-    //contrutores
-    public Alerta() {}
 
     public Alerta(String tipo, String nivel, String descricao) {
-        setTipo(tipo);
-        setNivel(nivel);
-        setDescricao(descricao);
+        this.tipo = tipo;
+        this.nivel = nivel;
+        this.descricao = descricao;
     }
-    //getters e setters
 
     public String getTipo() {
         return tipo;
     }
 
     public void setTipo(String tipo) {
-        if ("Churn".equalsIgnoreCase(tipo) || "Concorrência".equalsIgnoreCase(tipo) || "Upsell".equalsIgnoreCase(tipo) || "Reclamação".equalsIgnoreCase(tipo)){
-            this.tipo = tipo;
-        }
-        else {
-            System.out.println("Valor Invalido");
-        }
+        this.tipo = tipo;
     }
 
     public String getNivel() {
@@ -35,12 +27,7 @@ public class Alerta {
     }
 
     public void setNivel(String nivel) {
-        if ("Baixo".equalsIgnoreCase(nivel) || "Médio".equalsIgnoreCase(nivel) || "Alto".equalsIgnoreCase(nivel) || "Crítico".equalsIgnoreCase(nivel)) {
-            this.nivel = nivel;
-        }
-        else {
-            System.out.println("Valor Invalido");
-        }
+        this.nivel = nivel;
     }
 
     public String getDescricao() {
@@ -48,17 +35,15 @@ public class Alerta {
     }
 
     public void setDescricao(String descricao) {
-        if (descricao != null && !descricao.isBlank()){
-            this.descricao = descricao;
-        }
-        else {
-            System.out.println("Valor Invalido");
-        }
+        this.descricao = descricao;
     }
 
-    //metodos da classe
-
-    public void exibirAlerta(){
-        JOptionPane.showMessageDialog(null,String.format("Tipo: %s \nNivel: %s \nDescrição: %s ",tipo,nivel,descricao));
+    public void exibirAlerta() {
+        JOptionPane.showMessageDialog(
+                null,
+                "Tipo: " + tipo + "\nNível: " + nivel + "\nDescrição: " + descricao,
+                "Alerta",
+                JOptionPane.WARNING_MESSAGE
+        );
     }
 }

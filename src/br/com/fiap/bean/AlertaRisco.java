@@ -2,33 +2,23 @@ package br.com.fiap.bean;
 
 import javax.swing.*;
 
-public class AlertaRisco  extends Alerta{
-    //atributos
+public class AlertaRisco extends Alerta {
+
     private String concorrenteDetectado;
     private boolean riscoChurn;
-    private String mensagemRisco;
-
-    // construtores
-    public AlertaRisco() {}
 
     public AlertaRisco(String tipo, String nivel, String descricao, String concorrenteDetectado, boolean riscoChurn) {
         super(tipo, nivel, descricao);
-        setConcorrenteDetectado(concorrenteDetectado);
-        setRiscoChurn(riscoChurn);
+        this.concorrenteDetectado = concorrenteDetectado;
+        this.riscoChurn = riscoChurn;
     }
 
-    // getters e setters
     public String getConcorrenteDetectado() {
         return concorrenteDetectado;
     }
 
     public void setConcorrenteDetectado(String concorrenteDetectado) {
-        if (concorrenteDetectado != null && !concorrenteDetectado.isBlank()){
-            this.concorrenteDetectado = concorrenteDetectado;
-        }else {
-            System.out.println("Valor Invalido");
-        }
-
+        this.concorrenteDetectado = concorrenteDetectado;
     }
 
     public boolean isRiscoChurn() {
@@ -36,21 +26,19 @@ public class AlertaRisco  extends Alerta{
     }
 
     public void setRiscoChurn(boolean riscoChurn) {
-
         this.riscoChurn = riscoChurn;
-        if (riscoChurn){
-            mensagemRisco ="Existe risco de cancelamento";
-        }else{
-            mensagemRisco = "Não existe risco de cancelamento";
-        }
     }
-    //metodos da classe
 
-
+    @Override
     public void exibirAlerta() {
-        super.exibirAlerta();
-
-        JOptionPane.showMessageDialog(null,
-                String.format("Concorrente: %s \nRisco de churn: %s", concorrenteDetectado,mensagemRisco));
+        JOptionPane.showMessageDialog(
+                null,
+                "⚠ ALERTA DE RISCO\n\n" +
+                        "Descrição: " + getDescricao() + "\n" +
+                        "Concorrente Detectado: " + concorrenteDetectado + "\n" +
+                        "Risco de Churn: " + (riscoChurn ? "SIM" : "NÃO"),
+                "Risco Detectado",
+                JOptionPane.WARNING_MESSAGE
+        );
     }
 }

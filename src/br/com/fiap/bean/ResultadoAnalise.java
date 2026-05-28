@@ -4,99 +4,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResultadoAnalise {
-    //atributos
+
     private String resumo;
     private String sentimento;
     private List<Alerta> alertas;
     private List<String> palavrasChave;
     private String classificacao;
-    //construtores
+
     public ResultadoAnalise() {
-        this.alertas = new ArrayList<>();
+        alertas = new ArrayList<>();
+        palavrasChave = new ArrayList<>();
     }
 
-    public ResultadoAnalise(String resumo, String sentimento, List<Alerta> alertas, List<String> palavrasChave, String classificacao) {
-        setResumo(resumo);
-        setSentimento(sentimento);
-        setAlertas(alertas);
-        setPalavrasChave(palavrasChave);
-        setClassificacao(classificacao);
-    }
-    //getters e setters
+    public String getResumo() { return resumo; }
+    public void setResumo(String resumo) { this.resumo = resumo; }
+    public String getSentimento() { return sentimento; }
+    public void setSentimento(String sentimento) { this.sentimento = sentimento; }
+    public List<Alerta> getAlertas() { return alertas; }
+    public void adicionarAlerta(Alerta alerta) { alertas.add(alerta); }
+    public List<String> getPalavrasChave() { return palavrasChave; }
+    public void setPalavrasChave(List<String> palavrasChave) { this.palavrasChave = palavrasChave; }
+    public String getClassificacao() { return classificacao; }
+    public void setClassificacao(String classificacao) { this.classificacao = classificacao; }
 
-    public String getResumo() {
-        return resumo;
-    }
+    public String gerarRelatorio() {
+        StringBuilder relatorio = new StringBuilder();
+        relatorio.append("🎯 INTELIGÊNCIA ACIONÁVEL EXTRAÍDA\n");
+        relatorio.append("=========================================\n\n");
 
-    public void setResumo(String resumo) {
-        if (resumo != null && !resumo.isBlank()) {
-            this.resumo = resumo;
+        relatorio.append("🔹 Sentimento da Conversa:\n").append(sentimento).append("\n\n");
+        relatorio.append("🔹 Classificação de Contexto:\n").append(classificacao).append("\n\n");
+        relatorio.append("🔹 Palavras-chave Identificadas:\n[").append(String.join(", ", palavrasChave)).append("]\n\n");
+
+        relatorio.append("🔹 Sumário Executivo (Ruído Limpo):\n\"").append(resumo).append("\"\n\n");
+
+        relatorio.append("🚨 Descobertas Comerciais e Gatilhos:\n");
+        if (alertas.isEmpty()) {
+            relatorio.append("- Nenhum sinal de risco ou oportunidade detectado.");
         } else {
-            System.out.println("Resumo inválido");
+            for (Alerta alerta : alertas) {
+                relatorio.append("• [").append(alerta.getTipo()).append("] ").append(alerta.getDescricao()).append("\n");
+            }
         }
+        return relatorio.toString();
     }
-
-    public String getSentimento() {
-        return sentimento;
-    }
-
-    public void setSentimento(String sentimento) {
-        if (sentimento.equalsIgnoreCase("Positivo") || sentimento.equalsIgnoreCase("Negativo") || sentimento.equalsIgnoreCase("Neutro")) {
-
-            this.sentimento = sentimento;
-        } else {
-            System.out.println("Sentimento inválido");
-        }
-    }
-
-    public List<Alerta> getAlertas() {
-        return alertas;
-    }
-
-    public void setAlertas(List<Alerta> alertas) {
-        if (alertas != null) {
-            this.alertas = alertas;
-        } else {
-            System.out.println("Lista de alertas inválida");
-        }
-    }
-
-    public List<String> getPalavrasChave() {
-        return palavrasChave;
-    }
-
-    public void setPalavrasChave(List<String> palavrasChave) {
-        if (palavrasChave != null && !palavrasChave.isEmpty()) {
-            this.palavrasChave = palavrasChave;
-        } else {
-            System.out.println("Palavras-chave inválidas");
-        }
-    }
-
-    public String getClassificacao() {
-        return classificacao;
-    }
-
-    public void setClassificacao(String classificacao) {
-        if (classificacao.equalsIgnoreCase("Risco") || classificacao.equalsIgnoreCase("Oportunidade") || classificacao.equalsIgnoreCase("Neutro")) {
-
-            this.classificacao = classificacao;
-        } else {
-            System.out.println("Classificação inválida");
-        }
-    }
-    //metodos da classe
-    public void adicionarAlerta(Alerta alerta){
-        if (alerta != null){
-            alertas.add(alerta);
-        }else {
-            System.out.println("Alerta inválido");
-        }
-
-    }
-
-    public String gerarRelatorio(){
-        return "Resumo: " + resumo + "\nSentimento: " + sentimento + "\nClassificação: " + classificacao + "\nPalavras-chave: " + palavrasChave + "\nQuantidade de alertas: " + alertas.size();
-    }
-
 }
