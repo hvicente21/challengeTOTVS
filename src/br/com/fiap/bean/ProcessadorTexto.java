@@ -5,7 +5,6 @@ import java.util.List;
 
 public class ProcessadorTexto {
 
-    // Corrigido de 'limpiarTexto' para 'limparTexto'
     public String limparTexto(String texto) {
         if (texto == null) return "";
         texto = texto.toLowerCase();
@@ -17,7 +16,6 @@ public class ProcessadorTexto {
     }
 
     public List<String> tokenizar(String texto) {
-        // Ajustado aqui internamente também para garantir
         texto = limparTexto(texto);
         return Arrays.asList(texto.split("\\s+"));
     }

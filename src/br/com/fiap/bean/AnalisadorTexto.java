@@ -12,7 +12,6 @@ public class AnalisadorTexto {
     private List<String> palavrasOportunidade;
 
     public AnalisadorTexto() {
-        // Banco de palavras ajustado SEM ACENTOS para bater 100% com o ProcessadorTexto
         palavrasPositivas = Arrays.asList("bom", "otimo", "gostou", "funcionando", "satisfeito", "atendendo", "integrado", "consolidar", "melhor", "feliz", "automatizar", "reduziu", "retorno", "aumentar");
         palavrasNegativas = Arrays.asList("problema", "manual", "sofrendo", "dificuldade", "erro", "frustrado", "insatisfeito", "falha", "ruido", "retrabalho", "suporte", "insustentavel");
         palavrasRisco = Arrays.asList("senior", "sap", "oracle", "concorrente", "concorrencia", "trocar", "migracao");
@@ -24,25 +23,22 @@ public class AnalisadorTexto {
         String textoLimpo = processador.limparTexto(meeting.getTranscricao());
         List<String> palavras = processador.tokenizar(textoLimpo);
 
-        // 1. Calcula o sentimento da conversa
         String sentimentoCalculado = analisarSentimento(palavras);
 
-        // 2. Vincula a Nota NPS da UML dinamicamente ao sentimento do texto
         if (sentimentoCalculado.equals("Positivo")) {
-            meeting.setNotaNps(9.5); // Promotor
+            meeting.setNotaNps(9.5);
         } else if (sentimentoCalculado.contains("Misto")) {
-            meeting.setNotaNps(7.0); // Neutro
+            meeting.setNotaNps(7.0);
         } else {
-            meeting.setNotaNps(4.0); // Detrator
+            meeting.setNotaNps(4.0);
         }
 
         ResultadoAnalise resultado = new ResultadoAnalise();
-        // CORRIGIDO: Agora chamando o nome correto do método 'gerarResumo'
+
         resultado.setResumo(gerarResumo(meeting.getTranscricao()));
         resultado.setSentimento(sentimentoCalculado);
         resultado.setPalavrasChave(extrairPalavrasChave(palavras));
 
-        // 3. Regra de Negócio: Trata Alertas de Risco (Concorrência)
         if (detectarRisco(palavras)) {
             resultado.adicionarAlerta(new AlertaRisco(
                     "Ameaça de Concorrência",
@@ -53,7 +49,6 @@ public class AnalisadorTexto {
             ));
         }
 
-        // 4. Regra de Negócio: Trata Alertas de Oportunidade (Upsell/Expansão)
         if (detectarOportunidade(palavras)) {
             String descricaoOportunidade = sentimentoCalculado.equals("Positivo")
                     ? "Alta probabilidade de expansão comercial e aumento de licenças."
@@ -68,7 +63,6 @@ public class AnalisadorTexto {
             ));
         }
 
-        // 5. Classificação de Contexto Corporativo
         if (detectarRisco(palavras) && detectarOportunidade(palavras)) {
             resultado.setClassificacao("Misto (Oportunidade Comercial & Risco de Churn)");
         } else if (sentimentoCalculado.equals("Positivo") && detectarOportunidade(palavras)) {
@@ -93,7 +87,6 @@ public class AnalisadorTexto {
             if (palavrasNegativas.contains(palavra)) negativas++;
         }
 
-        // Tratamento contextualizado para a frase "reduziu retrabalho"
         if (palavras.contains("reduziu") && palavras.contains("retrabalho")) {
             negativas--;
         }
@@ -138,7 +131,6 @@ public class AnalisadorTexto {
         return palavrasChave;
     }
 
-    // CORRIGIDO: Nome do método alterado de 'generarResumo' para 'gerarResumo'
     public String gerarResumo(String texto) {
         if (texto == null || texto.isEmpty()) return "Sem resumo disponível.";
         if (texto.length() <= 150) return texto;
@@ -154,7 +146,6 @@ public class AnalisadorTexto {
         return "Não explicitado";
     }
 
-    // CORRIGIDO: Removido o 'Lazarus' intruso e utilizado a lista correta 'palavras'
     public String detectarProdutoRelacionado(List<String> palavras) {
         boolean temProtheus = palavras.contains("protheus");
         boolean temRm = palavras.contains("rm");

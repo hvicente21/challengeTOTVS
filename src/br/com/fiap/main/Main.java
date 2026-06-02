@@ -13,7 +13,6 @@ public class Main {
         UIManager.put("OptionPane.yesButtonText", "Sim");
         UIManager.put("OptionPane.noButtonText", "Não");
 
-        // 1. Pergunta: ID da Reunião
         int idMeeting = 0;
         while (true) {
             try {
@@ -26,7 +25,6 @@ public class Main {
             }
         }
 
-        // 2. Pergunta: Data da Reunião (BLOQUEANDO DATAS FUTURAS)
         LocalDate dataMeeting = null;
         DateTimeFormatter formatadorData = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         while (true) {
@@ -36,18 +34,16 @@ public class Main {
 
                 dataMeeting = LocalDate.parse(inputData, formatadorData);
 
-                // Validação de segurança corporativa: Reunião não pode acontecer no futuro
                 if (dataMeeting.isAfter(LocalDate.now())) {
                     JOptionPane.showMessageDialog(null, "Erro: A data da reunião não pode ser posterior à data de hoje (" + LocalDate.now().format(formatadorData) + ")!", "Data Inválida", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    break; // Data válida e igual ou anterior a hoje
+                    break;
                 }
             } catch (DateTimeParseException e) {
                 JOptionPane.showMessageDialog(null, "Data inválida ou formato incorreto! Use o padrão: DD/MM/AAAA", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
             }
         }
 
-        // 3. Pergunta: Formato
         String formato = "";
         while (true) {
             formato = JOptionPane.showInputDialog(null, "Digite o formato da meeting (Online/Presencial):", "Entrada de Dados", JOptionPane.QUESTION_MESSAGE);
@@ -60,7 +56,6 @@ public class Main {
             JOptionPane.showMessageDialog(null, "Opção inválida! Digite apenas Online ou Presencial.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
         }
 
-        // 4. Pergunta: Status
         String status = "";
         while (true) {
             status = JOptionPane.showInputDialog(null, "Digite o status da meeting (Finalizada/Em andamento/Cancelada):", "Entrada de Dados", JOptionPane.QUESTION_MESSAGE);
@@ -73,7 +68,6 @@ public class Main {
             JOptionPane.showMessageDialog(null, "Status inválido! Use: Finalizada, Em andamento ou Cancelada.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
         }
 
-        // 5. Pergunta: Duração
         int duracao = 0;
         while (true) {
             try {
@@ -87,19 +81,18 @@ public class Main {
             }
         }
 
-        // 6. Pergunta: UF
         String uf = JOptionPane.showInputDialog(null, "Digite a UF do cliente:", "Entrada de Dados", JOptionPane.QUESTION_MESSAGE);
         if (uf == null) System.exit(0);
 
-        // 7. Pergunta: Segmento
+
         String segmento = JOptionPane.showInputDialog(null, "Digite o segmento do cliente:", "Entrada de Dados", JOptionPane.QUESTION_MESSAGE);
         if (segmento == null) System.exit(0);
 
-        // 8. Pergunta: Transcrição
+
         String transcricao = JOptionPane.showInputDialog(null, "Digite a transcrição da reunião:", "Entrada de Dados", JOptionPane.QUESTION_MESSAGE);
         if (transcricao == null) System.exit(0);
 
-        // Instanciação sem a pergunta do NPS (Calculado automaticamente mais abaixo)
+
         Meeting meeting = new Meeting(idMeeting, dataMeeting, formato, status, duracao, transcricao, uf, segmento, 0.0);
 
         AnalisadorTexto analisador = new AnalisadorTexto();
