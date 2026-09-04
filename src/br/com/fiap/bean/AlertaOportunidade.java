@@ -1,5 +1,7 @@
 package br.com.fiap.bean;
 
+import br.com.fiap.dto.Alerta;
+
 import javax.swing.*;
 
 public class AlertaOportunidade extends Alerta {

@@ -1,6 +1,10 @@
 package br.com.fiap.main;
 
-import br.com.fiap.bean.*;
+import br.com.fiap.dto.Alerta;
+import br.com.fiap.dto.Meeting;
+import br.com.fiap.dto.ResultadoAnalise;
+import br.com.fiap.service.AnalisadorTexto;
+
 import javax.swing.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

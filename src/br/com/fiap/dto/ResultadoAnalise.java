@@ -1,4 +1,4 @@
-package br.com.fiap.bean;
+package br.com.fiap.dto;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,8 @@
-package br.com.fiap.bean;
+package br.com.fiap.service;
+
+import br.com.fiap.bean.*;
+import br.com.fiap.dto.Meeting;
+import br.com.fiap.dto.ResultadoAnalise;
 
 import java.util.ArrayList;
 import java.util.Arrays;
