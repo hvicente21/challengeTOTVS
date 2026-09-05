@@ -3,15 +3,15 @@ package br.com.fiap.main;
 import br.com.fiap.dto.Alerta;
 import br.com.fiap.dto.Meeting;
 import br.com.fiap.dto.ResultadoAnalise;
+import br.com.fiap.dto.Transcricao;
 import br.com.fiap.service.AnalisadorTexto;
 
 import javax.swing.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class Main {
-
     public static void main(String[] args) {
 
         UIManager.put("OptionPane.yesButtonText", "Sim");
@@ -29,17 +29,17 @@ public class Main {
             }
         }
 
-        LocalDate dataMeeting = null;
+        LocalDateTime dataMeeting = null;
         DateTimeFormatter formatadorData = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         while (true) {
             try {
                 String inputData = JOptionPane.showInputDialog(null, "Digite a data da reunião (DD/MM/AAAA):", "Entrada de Dados", JOptionPane.QUESTION_MESSAGE);
                 if (inputData == null) System.exit(0);
 
-                dataMeeting = LocalDate.parse(inputData, formatadorData);
+                dataMeeting = LocalDateTime.parse(inputData, formatadorData);
 
-                if (dataMeeting.isAfter(LocalDate.now())) {
-                    JOptionPane.showMessageDialog(null, "Erro: A data da reunião não pode ser posterior à data de hoje (" + LocalDate.now().format(formatadorData) + ")!", "Data Inválida", JOptionPane.ERROR_MESSAGE);
+                if (dataMeeting.isAfter(LocalDateTime.now())) {
+                    JOptionPane.showMessageDialog(null, "Erro: A data da reunião não pode ser posterior à data de hoje (" + LocalDateTime.now().format(formatadorData) + ")!", "Data Inválida", JOptionPane.ERROR_MESSAGE);
                 } else {
                     break;
                 }
