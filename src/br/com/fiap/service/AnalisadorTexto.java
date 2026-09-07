@@ -1,8 +1,6 @@
 package br.com.fiap.service;
 
-import br.com.fiap.bean.*;
-import br.com.fiap.dto.Meeting;
-import br.com.fiap.dto.ResultadoAnalise;
+import br.com.fiap.dto.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,119 +14,365 @@ public class AnalisadorTexto {
     private List<String> palavrasOportunidade;
 
     public AnalisadorTexto() {
-        palavrasPositivas = Arrays.asList("bom", "otimo", "gostou", "funcionando", "satisfeito", "atendendo", "integrado", "consolidar", "melhor", "feliz", "automatizar", "reduziu", "retorno", "aumentar");
-        palavrasNegativas = Arrays.asList("problema", "manual", "sofrendo", "dificuldade", "erro", "frustrado", "insatisfeito", "falha", "ruido", "retrabalho", "suporte", "insustentavel");
-        palavrasRisco = Arrays.asList("senior", "sap", "oracle", "concorrente", "concorrencia", "trocar", "migracao");
-        palavrasOportunidade = Arrays.asList("rh", "folha", "rm", "modulo", "expansao", "expandir", "usuarios", "backoffice", "cfo", "roi");
+        palavrasPositivas = Arrays.asList("bom", "boa", "bons", "boas", "ótimo", "ótima", "ótimos", "ótimas", "gostou", "funcionando", "satisfeito", "satisfeita", "satisfeitos", "satisfeitas", "atendendo", "melhor", "feliz", "automatizar", "reduziu"
+        );
+        palavrasNegativas = Arrays.asList("problema", "problemas", "manual", "sofrendo", "dificuldade", "dificuldades", "erro", "erros", "frustrado", "frustrada", "frustrados", "frustradas", "insatisfeito", "insatisfeita", "insatisfeitos", "insatisfeitas", "falha", "falhas", "ruído", "ruídos", "retrabalho", "insustentável"
+        );
+        palavrasRisco = Arrays.asList("senior", "sap", "oracle", "concorrente", "concorrência","trocar", "migração", "cancelar", "cancelamento", "reclamação", "insatisfeito", "falha", "problema"
+        );
+        palavrasOportunidade = Arrays.asList("rh", "folha", "rm", "módulo", "expansão", "expandir", "usuários", "backoffice", "cfo", "roi", "comprar", "contratar", "integrar", "integração", "upgrade", "interesse", "interessado", "novo", "novos", "conhecer", "demonstração", "demonstrar"
+        );
     }
 
-    public ResultadoAnalise analisar(Meeting meeting) {
+    public ResultadoAnalise analisar(Transcricao transcricao) {
+
+        if (transcricao == null ||
+                transcricao.getTexto() == null ||
+                transcricao.getTexto().trim().isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "A transcrição deve possuir um texto válido para análise."
+            );
+        }
+
         ProcessadorTexto processador = new ProcessadorTexto();
-        String textoLimpo = processador.limparTexto(meeting.getTranscricao());
-        List<String> palavras = processador.tokenizar(textoLimpo);
 
-        String sentimentoCalculado = analisarSentimento(palavras);
+        String texto = transcricao.getTexto();
 
-        if (sentimentoCalculado.equals("Positivo")) {
-            meeting.setNotaNps(9.5);
-        } else if (sentimentoCalculado.contains("Misto")) {
-            meeting.setNotaNps(7.0);
+        List<String> palavras = processador.tokenizar(texto);
+        List<String> palavrasFiltradas =
+                processador.removerStopwords(palavras);
+
+        String sentimento =
+                analisarSentimento(palavrasFiltradas);
+
+        Alerta alertaRisco =
+                detectarRisco(palavrasFiltradas);
+
+        Alerta alertaOportunidade =
+                detectarOportunidade(palavrasFiltradas);
+
+        List<PalavraChave> palavrasChave =
+                extrairPalavrasChave(palavrasFiltradas);
+
+        String resumo =
+                gerarResumo(texto);
+
+        boolean upsell =
+                detectarUpsell(palavrasFiltradas);
+
+        String concorrente =
+                detectarConcorrente(palavrasFiltradas);
+
+        if (alertaOportunidade != null && upsell) {
+            alertaOportunidade.setDescricao(
+                    alertaOportunidade.getDescricao()
+                            + " Também foram identificados indícios de upsell."
+            );
+        }
+
+        double riscoChurn = 0;
+
+        if (alertaRisco != null) {
+
+            if (alertaRisco.getNivelRisco().equals("Baixo")) {
+                riscoChurn += 10;
+
+            } else if (alertaRisco.getNivelRisco().equals("Médio")) {
+                riscoChurn += 25;
+
+            } else if (alertaRisco.getNivelRisco().equals("Alto")) {
+                riscoChurn += 45;
+
+            } else if (alertaRisco.getNivelRisco().equals("Crítico")) {
+                riscoChurn += 65;
+            }
+        }
+
+        if (sentimento.equals("Negativo")) {
+            riscoChurn += 15;
+
+        } else if (sentimento.equals("Misto")) {
+            riscoChurn += 8;
+        }
+
+        String classificacao;
+
+        if (alertaRisco != null &&
+                (alertaRisco.getNivelRisco().equals("Alto") ||
+                        alertaRisco.getNivelRisco().equals("Crítico"))) {
+
+            classificacao = "Risco";
+
+        } else if (alertaOportunidade != null) {
+
+            classificacao = "Oportunidade";
+
+        } else if (alertaRisco != null) {
+
+            classificacao = "Risco";
+
         } else {
-            meeting.setNotaNps(4.0);
+
+            classificacao = "Estável";
         }
 
-        ResultadoAnalise resultado = new ResultadoAnalise();
+        ResultadoAnalise resultado = new ResultadoAnalise(
+                0,
+                transcricao,
+                resumo,
+                sentimento,
+                new ArrayList<>(),
+                riscoChurn,
+                classificacao
+        );
 
-        resultado.setResumo(gerarResumo(meeting.getTranscricao()));
-        resultado.setSentimento(sentimentoCalculado);
-        resultado.setPalavrasChave(extrairPalavrasChave(palavras));
-
-        if (detectarRisco(palavras)) {
-            resultado.adicionarAlerta(new AlertaRisco(
-                    "Ameaça de Concorrência",
-                    "Alto",
-                    "Cliente avaliando solução da " + detectarConcorrente(palavras) + " para RH.",
-                    detectarConcorrente(palavras),
-                    true
-            ));
+        if (alertaRisco != null) {
+            resultado.adicionarAlerta(alertaRisco);
         }
 
-        if (detectarOportunidade(palavras)) {
-            String descricaoOportunidade = sentimentoCalculado.equals("Positivo")
-                    ? "Alta probabilidade de expansão comercial e aumento de licenças."
-                    : "Alta probabilidade de venda do módulo de Folha de Pagamento.";
-
-            resultado.adicionarAlerta(new AlertaOportunidade(
-                    "Sinal de Venda (Upsell)",
-                    "Médio/Alto",
-                    descricaoOportunidade,
-                    detectarProdutoRelacionado(palavras),
-                    detectarUpsell(palavras)
-            ));
+        if (alertaOportunidade != null) {
+            resultado.adicionarAlerta(alertaOportunidade);
         }
 
-        if (detectarRisco(palavras) && detectarOportunidade(palavras)) {
-            resultado.setClassificacao("Misto (Oportunidade Comercial & Risco de Churn)");
-        } else if (sentimentoCalculado.equals("Positivo") && detectarOportunidade(palavras)) {
-            resultado.setClassificacao("Oportunidade Comercial Expansionista (Sucesso do Cliente)");
-        } else if (detectarOportunidade(palavras)) {
-            resultado.setClassificacao("Oportunidade Comercial (Módulos Não Contratados)");
-        } else if (detectarRisco(palavras)) {
-            resultado.setClassificacao("Risco Crítico de Churn (Concorrência Ativa)");
-        } else {
-            resultado.setClassificacao("Relacionamento / Cliente Estabilizado");
+        transcricao.setResultadoAnalise(resultado);
+
+        if (transcricao.getMeeting() != null) {
+
+            for (PalavraChave palavraChave : palavrasChave) {
+                transcricao.getMeeting().adicionarPalavraChave(palavraChave);
+            }
         }
 
         return resultado;
     }
 
     public String analisarSentimento(List<String> palavras) {
+        if (palavras == null || palavras.isEmpty()) {
+            return "Neutro";
+        }
         int positivas = 0;
         int negativas = 0;
 
         for (String palavra : palavras) {
-            if (palavrasPositivas.contains(palavra)) positivas++;
-            if (palavrasNegativas.contains(palavra)) negativas++;
+            if (palavrasPositivas.contains(palavra)) {
+                positivas++;
+            }
+            if (palavrasNegativas.contains(palavra)) {
+                negativas++;
+            }
         }
+        if (positivas == 0 && negativas == 0) {return "Neutro";}
+        if (positivas > negativas) {return "Positivo";}
+        if (negativas > positivas) {return "Negativo";}
 
-        if (palavras.contains("reduziu") && palavras.contains("retrabalho")) {
-            negativas--;
-        }
-
-        if (positivas > 0 && negativas > 0) {
-            return "Misto (Satisfeito com um sector / Frustrado com outro)";
-        }
-        if (positivas > negativas) return "Positivo";
-        if (negativas > positivas) return "Negativo";
-
-        return "Neutro";
+        return "Misto";
     }
 
-    public boolean detectarRisco(List<String> palavras) {
-        for (String palavra : palavras) {
-            if (palavrasRisco.contains(palavra)) return true;
+    public Alerta detectarRisco(List<String> palavras) {
+
+        if (palavras == null || palavras.isEmpty()) {
+            return null;
         }
-        return false;
+
+        boolean temCancelamento = palavras.contains("cancelar") || palavras.contains("cancelamento");
+
+        boolean temTroca = palavras.contains("trocar") || palavras.contains("troca") || palavras.contains("migração") || palavras.contains("migrar");
+
+        boolean temConcorrencia = palavras.contains("concorrente") || palavras.contains("concorrência") || palavras.contains("senior") || palavras.contains("sap") || palavras.contains("oracle");
+
+        boolean temInsatisfacao = palavras.contains("insatisfeito") || palavras.contains("insatisfeita") || palavras.contains("insatisfeitos") || palavras.contains("insatisfeitas") || palavras.contains("reclamação") || palavras.contains("reclamações");
+
+        boolean temProblema = palavras.contains("problema") || palavras.contains("problemas") || palavras.contains("falha") || palavras.contains("falhas") || palavras.contains("erro") || palavras.contains("erros") || palavras.contains("dificuldade") || palavras.contains("dificuldades");
+
+        int quantidadeSinaisNegativos = 0;
+
+        for (String palavra : palavras) {
+            if (palavrasNegativas.contains(palavra)) {
+                quantidadeSinaisNegativos++;
+            }
+        }
+
+        String nivelRisco;
+        StringBuilder descricao = new StringBuilder();
+
+        if (temCancelamento) {
+            nivelRisco = "Crítico";
+            descricao.append("Foi identificada intenção de cancelamento");
+        } else if (temTroca && temConcorrencia) {
+            nivelRisco = "Crítico";
+            descricao.append("Foram identificados sinais de troca de solução e avaliação de concorrentes");
+        } else if (temTroca) {
+            nivelRisco = "Médio";
+            descricao.append("Foi identificada possível intenção de troca ou migração de solução");
+        } else if (temConcorrencia) {
+            nivelRisco = "Alto";
+            descricao.append("Foi identificada avaliação ou menção a solução concorrente");
+        } else if (temInsatisfacao && temProblema) {
+            nivelRisco = "Alto";
+            descricao.append("Foram identificados sinais de insatisfação acompanhados de problemas no serviço");
+        } else if (temInsatisfacao) {
+            nivelRisco = "Médio";
+            descricao.append("Foram identificados sinais de insatisfação do cliente");
+        } else if (temProblema || quantidadeSinaisNegativos >= 2) {
+            nivelRisco = "Médio";
+            descricao.append("Foram identificados problemas ou dificuldades relevantes durante a conversa");
+        } else if (quantidadeSinaisNegativos == 1) {
+            nivelRisco = "Baixo";
+            descricao.append("Foi identificado um sinal isolado de dificuldade ou insatisfação");
+        } else {
+            return null;
+        }
+
+        List<String> concorrentesEncontrados = new ArrayList<>();
+
+        if (palavras.contains("senior")) {
+            concorrentesEncontrados.add("Senior");
+        }
+        if (palavras.contains("sap")) {
+            concorrentesEncontrados.add("SAP");
+        }
+        if (palavras.contains("oracle")) {
+            concorrentesEncontrados.add("Oracle");
+        }
+        if (!concorrentesEncontrados.isEmpty()) {
+            descricao.append(". Concorrente(s) mencionado(s): ");
+
+            for (int i = 0; i < concorrentesEncontrados.size(); i++) {
+                descricao.append(concorrentesEncontrados.get(i));
+
+                if (i < concorrentesEncontrados.size() - 1) {
+                    descricao.append(", ");
+                }
+            }
+        }
+        descricao.append(".");
+        return new Alerta(
+                0,
+                null,
+                "Risco",
+                nivelRisco,
+                descricao.toString()
+        );
     }
 
-    public boolean detectarOportunidade(List<String> palavras) {
-        for (String palavra : palavras) {
-            if (palavrasOportunidade.contains(palavra)) return true;
+    public Alerta detectarOportunidade(List<String> palavras) {
+
+        if (palavras == null || palavras.isEmpty()) {
+            return null;
         }
-        return false;
+
+        boolean temCompra = palavras.contains("comprar") || palavras.contains("contratar");
+
+        boolean temExpansao = palavras.contains("expansão") || palavras.contains("expandir") || palavras.contains("aumentar");
+
+        boolean temIntegracao = palavras.contains("integrar") || palavras.contains("integração");
+
+        boolean temNovoModulo = palavras.contains("módulo") && (palavras.contains("novo") || palavras.contains("novos"));
+
+        boolean temUpgrade = palavras.contains("upgrade");
+
+        boolean temInteresse = palavras.contains("interesse") || palavras.contains("interessado") || palavras.contains("conhecer");
+
+        boolean temDemonstracao = palavras.contains("demonstração") || palavras.contains("demonstrar");
+
+        boolean mencionaProduto = palavras.contains("rm") || palavras.contains("protheus") || palavras.contains("fluig") || palavras.contains("clockin");
+
+        if (!temCompra && !temExpansao && !temIntegracao && !temNovoModulo && !temUpgrade && !temInteresse && !temDemonstracao) {
+            return null;
+        }
+
+        StringBuilder descricao = new StringBuilder("Foi identificada uma oportunidade comercial");
+
+        List<String> sinaisEncontrados = new ArrayList<>();
+
+        if (temCompra) {
+            sinaisEncontrados.add("intenção de contratação");
+        }
+        if (temExpansao) {
+            sinaisEncontrados.add("expansão");
+        }
+        if (temIntegracao) {
+            sinaisEncontrados.add("integração");
+        }
+        if (temNovoModulo) {
+            sinaisEncontrados.add("interesse em novo módulo");
+        }
+        if (temUpgrade) {
+            sinaisEncontrados.add("upgrade");
+        }
+        if (temInteresse) {
+            sinaisEncontrados.add("interesse em nova solução");
+        }
+        if (temDemonstracao) {
+            sinaisEncontrados.add("pedido ou interesse em demonstração");
+        }
+
+        if (!sinaisEncontrados.isEmpty()) {
+
+            descricao.append(" relacionada a ");
+
+            for (int i = 0; i < sinaisEncontrados.size(); i++) {
+
+                descricao.append(sinaisEncontrados.get(i));
+
+                if (i < sinaisEncontrados.size() - 1) {
+                    descricao.append(", ");
+                }
+            }
+        }
+        if (mencionaProduto) {
+
+            String produto = detectarProdutoRelacionado(palavras);
+
+            descricao.append(". Produto ou área relacionada: ")
+                    .append(produto);
+        }
+
+        descricao.append(".");
+        return new Alerta(
+                0,
+                null,
+                "Oportunidade",
+                null,
+                descricao.toString()
+        );
     }
 
-    public List<String> extrairPalavrasChave(List<String> palavras) {
-        List<String> palavrasChave = new ArrayList<>();
-        for (String palavra : palavras) {
-            if (palavrasOportunidade.contains(palavra) ||
+    public List<PalavraChave> extrairPalavrasChave(List<String> palavras) {
+        List<PalavraChave> palavrasChave = new ArrayList<>();
+
+        if (palavras == null || palavras.isEmpty()) {
+            return palavrasChave;
+        }
+
+        ProcessadorTexto processador = new ProcessadorTexto();
+        List<String> palavrasFiltradas =
+                processador.removerStopwords(palavras);
+
+        List<String> termosEspecificos = Arrays.asList("totvs", "protheus", "rm", "fluig", "clockin", "erp", "rh", "folha", "churn"
+        );
+
+        for (String palavra : palavrasFiltradas) {
+            boolean palavraRelevante =
                     palavrasRisco.contains(palavra) ||
-                    palavrasNegativas.contains(palavra) ||
-                    palavra.equals("protheus") ||
-                    palavra.equals("rm")) {
+                            palavrasOportunidade.contains(palavra) ||
+                            palavrasNegativas.contains(palavra) ||
+                            termosEspecificos.contains(palavra);
 
-                if (!palavrasChave.contains(palavra)) {
-                    palavrasChave.add(palavra);
+            if (palavraRelevante) {
+                boolean duplicada = false;
+                for (PalavraChave palavraChave : palavrasChave) {
+
+                    if (palavraChave.getPalavra()
+                            .equalsIgnoreCase(palavra)) {
+
+                        duplicada = true;
+                        break;
+                    }
+                }
+                if (!duplicada) {
+                    palavrasChave.add(new PalavraChave(palavra, 0));
                 }
             }
         }
@@ -136,41 +380,165 @@ public class AnalisadorTexto {
     }
 
     public String gerarResumo(String texto) {
-        if (texto == null || texto.isEmpty()) return "Sem resumo disponível.";
-        if (texto.length() <= 150) return texto;
-        return texto.substring(0, 150) + "...";
+
+        if (texto == null || texto.trim().isEmpty()) {
+            return "Sem resumo disponível.";
+        }
+
+        String[] trechos = texto.split("(?<=[.!?])\\s+|\\R+");
+
+        int[] pontuacoes = new int[trechos.length];
+
+        ProcessadorTexto processador = new ProcessadorTexto();
+
+        for (int i = 0; i < trechos.length; i++) {
+            List<String> palavras = processador.tokenizar(trechos[i]);
+            int pontuacao = 0;
+
+            for (String palavra : palavras) {
+                if (palavrasRisco.contains(palavra)) {
+                    pontuacao += 3;
+                }
+                if (palavrasOportunidade.contains(palavra)) {
+                    pontuacao += 2;
+                }
+                if (palavrasNegativas.contains(palavra)) {
+                    pontuacao += 2;
+                }
+                if (palavrasPositivas.contains(palavra)) {
+                    pontuacao++;
+                }
+                if (palavra.equals("protheus") || palavra.equals("rm") || palavra.equals("fluig") || palavra.equals("clockin")) {
+                    pontuacao += 2;
+                }
+            }
+            pontuacoes[i] = pontuacao;
+        }
+
+        int[] selecionados = {-1, -1, -1};
+
+        for (int posicao = 0; posicao < selecionados.length; posicao++) {
+            int maiorPontuacao = 0;
+            int melhorIndice = -1;
+
+            for (int i = 0; i < pontuacoes.length; i++) {
+                boolean jaSelecionado = false;
+                for (int indice : selecionados) {
+                    if (indice == i) {
+                        jaSelecionado = true;
+                        break;
+                    }
+                }
+                if (!jaSelecionado && pontuacoes[i] > maiorPontuacao) {
+                    maiorPontuacao = pontuacoes[i];
+                    melhorIndice = i;
+                }
+            }
+            selecionados[posicao] = melhorIndice;
+        }
+        for (int i = 0; i < selecionados.length - 1; i++) {
+            for (int j = i + 1; j < selecionados.length; j++) {
+                if (selecionados[i] == -1 || (selecionados[j] != -1 && selecionados[j] < selecionados[i])) {
+                    int auxiliar = selecionados[i];
+                    selecionados[i] = selecionados[j];
+                    selecionados[j] = auxiliar;
+                }
+            }
+        }
+
+        StringBuilder resumo = new StringBuilder();
+
+        for (int indice : selecionados) {
+            if (indice != -1) {
+                String trecho = trechos[indice].trim();
+                if (!trecho.isEmpty()) {
+                    if (resumo.length() > 0) {
+                        resumo.append(" ");
+                    }
+                    resumo.append(trecho);
+                }
+            }
+        }
+        if (resumo.length() == 0) {
+            String textoLimpo = texto.trim();
+            if (textoLimpo.length() <= 200) {
+                return textoLimpo;
+            }
+            return textoLimpo.substring(0, 200) + "...";
+        }
+        return resumo.toString();
     }
 
     public String detectarConcorrente(List<String> palavras) {
-        for (String palavra : palavras) {
-            if (palavrasRisco.contains(palavra) && !palavra.equals("trocar") && !palavra.equals("migracao")) {
-                return palavra.substring(0, 1).toUpperCase() + palavra.substring(1);
-            }
+        if (palavras == null || palavras.isEmpty()) {
+            return "Nenhum concorrente detectado";
         }
-        return "Não explicitado";
+        List<String> concorrentesEncontrados = new ArrayList<>();
+
+        if (palavras.contains("senior")) {
+            concorrentesEncontrados.add("Senior");
+        }
+        if (palavras.contains("sap")) {
+            concorrentesEncontrados.add("SAP");
+        }
+        if (palavras.contains("oracle")) {
+            concorrentesEncontrados.add("Oracle");
+        }
+        if (concorrentesEncontrados.isEmpty()) {
+            return "Nenhum concorrente detectado";
+        }
+        return String.join(", ", concorrentesEncontrados);
     }
 
     public String detectarProdutoRelacionado(List<String> palavras) {
-        boolean temProtheus = palavras.contains("protheus");
-        boolean temRm = palavras.contains("rm");
+        if (palavras == null || palavras.isEmpty()) {
+            return "Nenhum produto TOTVS detectado";
+        }
+        List<String> produtosEncontrados = new ArrayList<>();
 
-        if (temProtheus && temRm) {
-            if (palavras.contains("expandir") || palavras.contains("aumentar")) {
-                return "Expansão do ecossistema TOTVS (Novos Usuários/Módulos)";
-            }
-            return "TOTVS Protheus (Atual) e TOTVS RM (Oportunidade)";
+        if (palavras.contains("protheus")) {
+            produtosEncontrados.add("TOTVS Protheus");
         }
-        if (temRm || palavras.contains("folha") || palavras.contains("rh")) {
-            return "TOTVS RM (Módulo RH/Folha)";
+        if (palavras.contains("rm")) {
+            produtosEncontrados.add("TOTVS RM");
         }
-        if (temProtheus) {
-            return "TOTVS Protheus (Módulo ERP/Backoffice)";
+        if (palavras.contains("fluig")) {
+            produtosEncontrados.add("TOTVS Fluig");
         }
-
-        return "Ecossistema TOTVS";
+        if (palavras.contains("clockin")) {
+            produtosEncontrados.add("TOTVS ClockIn");
+        }
+        if (produtosEncontrados.isEmpty()) {
+            return "Nenhum produto TOTVS detectado";
+        }
+        return String.join(", ", produtosEncontrados);
     }
 
     public boolean detectarUpsell(List<String> palavras) {
-        return palavras.contains("folha") || palavras.contains("rh") || palavras.contains("expandir") || palavras.contains("aumentar");
+
+        if (palavras == null || palavras.isEmpty()) {
+            return false;
+        }
+
+        boolean mencionaProdutoAtual = palavras.contains("totvs") || palavras.contains("protheus") || palavras.contains("rm") || palavras.contains("fluig") || palavras.contains("clockin");
+
+        boolean temNovoModulo = palavras.contains("módulo") && (palavras.contains("novo") || palavras.contains("novos"));
+
+        boolean temExpansao = palavras.contains("expansão") || palavras.contains("expandir") || palavras.contains("aumentar");
+
+        boolean temUpgrade = palavras.contains("upgrade");
+
+        boolean temIntegracao = palavras.contains("integrar") || palavras.contains("integração");
+
+        boolean temInteresseComercial = palavras.contains("interesse") || palavras.contains("interessado") || palavras.contains("conhecer") || palavras.contains("demonstração") || palavras.contains("demonstrar") || palavras.contains("contratar") || palavras.contains("comprar");
+
+        if (temNovoModulo || temUpgrade) {
+            return true;
+        }
+        if (mencionaProdutoAtual &&
+                (temExpansao || temIntegracao || temInteresseComercial)) {
+            return true;
+        }
+        return false;
     }
 }
