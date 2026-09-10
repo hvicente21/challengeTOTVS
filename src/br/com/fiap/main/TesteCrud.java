@@ -57,6 +57,26 @@ public class TesteCrud {
 
 
         /*
+         * PALAVRA-CHAVE RELACIONADA À MEETING
+         *
+         * Esta palavra existe para testar o funcionamento
+         * de MEETING_PALAVRA_CHAVE dentro do MeetingDaoImpl.
+         */
+
+        PalavraChave palavraRelacionada =
+                new PalavraChave();
+
+        palavraRelacionada.setPalavra(
+                "Relacionada Teste "
+                        + System.currentTimeMillis()
+        );
+
+        meeting.adicionarPalavraChave(
+                palavraRelacionada
+        );
+
+
+        /*
          * INSERT MEETING
          */
 
@@ -71,6 +91,11 @@ public class TesteCrud {
         System.out.println(
                 "ID gerado: "
                         + meeting.getIdMeeting()
+        );
+
+        System.out.println(
+                "ID da palavra-chave vinculada: "
+                        + palavraRelacionada.getIdPalavraChave()
         );
 
 
@@ -140,6 +165,10 @@ public class TesteCrud {
         meeting.setNotaNps(9);
 
         System.out.println(
+                "\n--- ATUALIZANDO MEETING ---"
+        );
+
+        System.out.println(
                 meetingDao.atualizar(meeting)
         );
 
@@ -179,13 +208,18 @@ public class TesteCrud {
                 "\n--- TODAS AS MEETINGS ---"
         );
 
-        for (Meeting m : meetingDao.listarTodos()) {
+        for (Meeting m :
+                meetingDao.listarTodos()) {
 
             System.out.println(
-                    "ID: " + m.getIdMeeting()
-                            + " | Status: " + m.getStatus()
-                            + " | Segmento: " + m.getSegmento()
-                            + " | NPS: " + m.getNotaNps()
+                    "ID: "
+                            + m.getIdMeeting()
+                            + " | Status: "
+                            + m.getStatus()
+                            + " | Segmento: "
+                            + m.getSegmento()
+                            + " | NPS: "
+                            + m.getNotaNps()
             );
         }
 
@@ -270,6 +304,10 @@ public class TesteCrud {
         );
 
         System.out.println(
+                "\n--- ATUALIZANDO TRANSCRICAO ---"
+        );
+
+        System.out.println(
                 transcricaoDao.atualizar(transcricao)
         );
 
@@ -311,10 +349,12 @@ public class TesteCrud {
                 "\n--- TODAS AS TRANSCRICOES ---"
         );
 
-        for (Transcricao t : transcricaoDao.listarTodos()) {
+        for (Transcricao t :
+                transcricaoDao.listarTodos()) {
 
             System.out.println(
-                    "ID: " + t.getIdTranscricao()
+                    "ID: "
+                            + t.getIdTranscricao()
                             + " | ID Meeting: "
                             + t.getMeeting().getIdMeeting()
                             + " | Texto: "
@@ -327,6 +367,9 @@ public class TesteCrud {
          * =========================================================
          * PALAVRA-CHAVE
          * =========================================================
+         *
+         * Esta é outra palavra-chave.
+         * Ela serve para testar diretamente o PalavraChaveDao.
          */
 
         PalavraChaveDao palavraChaveDao =
@@ -399,6 +442,10 @@ public class TesteCrud {
         palavraChave.setPalavra(
                 "TOTVS Protheus Teste "
                         + meeting.getIdMeeting()
+        );
+
+        System.out.println(
+                "\n--- ATUALIZANDO PALAVRA-CHAVE ---"
         );
 
         System.out.println(
@@ -574,6 +621,10 @@ public class TesteCrud {
         );
 
         System.out.println(
+                "\n--- ATUALIZANDO RESULTADO ANALISE ---"
+        );
+
+        System.out.println(
                 resultadoAnaliseDao.atualizar(
                         resultadoAnalise
                 )
@@ -744,6 +795,10 @@ public class TesteCrud {
         );
 
         System.out.println(
+                "\n--- ATUALIZANDO ALERTA ---"
+        );
+
+        System.out.println(
                 alertaDao.atualizar(alerta)
         );
 
@@ -807,6 +862,42 @@ public class TesteCrud {
          * REMOCAO DOS DADOS CRIADOS NESTE TESTE
          * =========================================================
          */
+
+
+        /*
+         * TESTE DE BLOQUEIO DA REMOCAO DA MEETING
+         *
+         * Neste momento ainda existe uma Transcricao vinculada.
+         * Portanto, a Meeting NAO deve ser removida.
+         */
+
+        System.out.println(
+                "\n--- TESTANDO BLOQUEIO DA REMOCAO DA MEETING ---"
+        );
+
+        System.out.println(
+                meetingDao.remover(
+                        meeting.getIdMeeting()
+                )
+        );
+
+        Meeting meetingAindaExiste =
+                meetingDao.buscar(
+                        meeting.getIdMeeting()
+                );
+
+        if (meetingAindaExiste != null) {
+
+            System.out.println(
+                    "Confirmação: Meeting não foi removida porque ainda possui Transcrição vinculada."
+            );
+
+        } else {
+
+            System.out.println(
+                    "Erro: Meeting foi removida antes da Transcrição."
+            );
+        }
 
 
         /*
@@ -878,39 +969,6 @@ public class TesteCrud {
 
 
         /*
-         * REMOVE PALAVRA-CHAVE
-         */
-
-        System.out.println(
-                "\n--- REMOVENDO PALAVRA-CHAVE ---"
-        );
-
-        System.out.println(
-                palavraChaveDao.remover(
-                        palavraChave.getIdPalavraChave()
-                )
-        );
-
-        PalavraChave palavraChaveRemovida =
-                palavraChaveDao.buscar(
-                        palavraChave.getIdPalavraChave()
-                );
-
-        if (palavraChaveRemovida == null) {
-
-            System.out.println(
-                    "Confirmação: Palavra-chave não existe mais no banco."
-            );
-
-        } else {
-
-            System.out.println(
-                    "Erro: Palavra-chave ainda foi encontrada."
-            );
-        }
-
-
-        /*
          * REMOVE TRANSCRICAO
          */
 
@@ -945,6 +1003,12 @@ public class TesteCrud {
 
         /*
          * REMOVE MEETING
+         *
+         * Agora que a Transcricao foi removida,
+         * o MeetingDaoImpl deve:
+         *
+         * 1 - Remover os vínculos de MEETING_PALAVRA_CHAVE
+         * 2 - Remover a Meeting
          */
 
         System.out.println(
@@ -972,6 +1036,76 @@ public class TesteCrud {
 
             System.out.println(
                     "Erro: Meeting ainda foi encontrada."
+            );
+        }
+
+
+        /*
+         * REMOVE PALAVRA-CHAVE DO CRUD
+         */
+
+        System.out.println(
+                "\n--- REMOVENDO PALAVRA-CHAVE DO CRUD ---"
+        );
+
+        System.out.println(
+                palavraChaveDao.remover(
+                        palavraChave.getIdPalavraChave()
+                )
+        );
+
+        PalavraChave palavraChaveRemovida =
+                palavraChaveDao.buscar(
+                        palavraChave.getIdPalavraChave()
+                );
+
+        if (palavraChaveRemovida == null) {
+
+            System.out.println(
+                    "Confirmação: Palavra-chave do CRUD não existe mais no banco."
+            );
+
+        } else {
+
+            System.out.println(
+                    "Erro: Palavra-chave do CRUD ainda foi encontrada."
+            );
+        }
+
+
+        /*
+         * REMOVE PALAVRA-CHAVE QUE ESTAVA VINCULADA À MEETING
+         *
+         * Se esta remoção funcionar após remover a Meeting,
+         * também confirma que o vínculo de
+         * MEETING_PALAVRA_CHAVE foi removido.
+         */
+
+        System.out.println(
+                "\n--- REMOVENDO PALAVRA-CHAVE VINCULADA ---"
+        );
+
+        System.out.println(
+                palavraChaveDao.remover(
+                        palavraRelacionada.getIdPalavraChave()
+                )
+        );
+
+        PalavraChave palavraRelacionadaRemovida =
+                palavraChaveDao.buscar(
+                        palavraRelacionada.getIdPalavraChave()
+                );
+
+        if (palavraRelacionadaRemovida == null) {
+
+            System.out.println(
+                    "Confirmação: Palavra-chave vinculada não existe mais no banco."
+            );
+
+        } else {
+
+            System.out.println(
+                    "Erro: Palavra-chave vinculada ainda foi encontrada."
             );
         }
 
