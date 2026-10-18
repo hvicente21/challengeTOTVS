@@ -1,5 +1,6 @@
 package br.com.fiap.model.entity;
 
+import br.com.fiap.model.dto.ResultadoAnaliseDTO;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,19 @@ public class ResultadoAnalise {
 
     public ResultadoAnalise() {
         alertas = new ArrayList<>();
+    }
+
+    public ResultadoAnalise(
+            ResultadoAnaliseDTO resultadoAnaliseDTO,
+            Transcricao transcricao) {
+
+        alertas = new ArrayList<>();
+
+        setTranscricao(transcricao);
+        setResumo(resultadoAnaliseDTO.resumo());
+        setSentimento(resultadoAnaliseDTO.sentimento());
+        setRiscoChurn(resultadoAnaliseDTO.riscoChurn());
+        setClassificacao(resultadoAnaliseDTO.classificacao());
     }
 
     public ResultadoAnalise(int idResultadoAnalise, Transcricao transcricao, String resumo, String sentimento, List<Alerta> alertas, double riscoChurn, String classificacao) {
