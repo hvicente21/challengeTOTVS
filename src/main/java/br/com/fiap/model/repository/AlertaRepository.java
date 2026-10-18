@@ -5,4 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AlertaRepository
         extends JpaRepository<Alerta, Integer> {
+
+    boolean existsByResultadoAnalise_IdResultadoAnalise(
+            int idResultadoAnalise
+    );
 }
