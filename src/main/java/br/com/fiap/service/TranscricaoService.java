@@ -93,10 +93,11 @@ public class TranscricaoService {
                                 transcricaoDTO.idMeeting()
                         );
 
-        if (transcricaoExistente != null) {
+        if (transcricaoExistente != null &&
+                transcricaoExistente.getIdTranscricao() != id) {
+
             return null;
         }
-
         transcricao.setMeeting(meeting);
         transcricao.setTexto(transcricaoDTO.texto());
 
