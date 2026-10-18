@@ -3,9 +3,7 @@ package br.com.fiap.model.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import br.com.fiap.model.dto.MeetingDTO;
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import java.time.Duration;
+import org.hibernate.annotations.ColumnTransformer;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
@@ -26,9 +24,17 @@ public class Meeting {
     private String formato;
     @Column(name = "STATUS", nullable = false, length = 30)
     private String status;
-    @JdbcTypeCode(SqlTypes.INTERVAL_SECOND)
     @Column(name = "DURACAO", nullable = false)
-    private Duration duracao;
+    @ColumnTransformer(
+            read = """
+                (EXTRACT(DAY FROM DURACAO) * 86400 +
+                 EXTRACT(HOUR FROM DURACAO) * 3600 +
+                 EXTRACT(MINUTE FROM DURACAO) * 60 +
+                 EXTRACT(SECOND FROM DURACAO))
+                """,
+            write = "NUMTODSINTERVAL(?, 'SECOND')"
+    )
+    private int duracao;
     @JsonIgnore
     @OneToOne(mappedBy = "meeting")
     private Transcricao transcricao;
@@ -116,11 +122,7 @@ public class Meeting {
     }
 
     public int getDuracao() {
-        if (duracao == null) {
-            return 0;
-        }
-
-        return Math.toIntExact(duracao.getSeconds());
+        return duracao;
     }
 
     public void setDuracao(int duracao) {
@@ -129,8 +131,7 @@ public class Meeting {
                     "A duração deve ser maior que zero."
             );
         }
-
-        this.duracao = Duration.ofSeconds(duracao);
+        this.duracao = duracao;
     }
 
     public Transcricao getTranscricao() {
