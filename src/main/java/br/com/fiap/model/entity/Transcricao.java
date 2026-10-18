@@ -22,7 +22,7 @@ public class Transcricao {
     @Lob
     @Column(name = "TEXTO", nullable = false)
     private String texto;
-    @Transient
+    @OneToOne(mappedBy = "transcricao")
     private ResultadoAnalise resultadoAnalise;
 
     public Transcricao() {

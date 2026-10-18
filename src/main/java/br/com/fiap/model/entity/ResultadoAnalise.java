@@ -1,16 +1,33 @@
 package br.com.fiap.model.entity;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity(name = "ResultadoAnalise")
+@Table(name = "RESULTADO_ANALISE")
 public class ResultadoAnalise {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_RESULTADO_ANALISE")
     private int idResultadoAnalise;
+    @OneToOne
+    @JoinColumn(
+            name = "ID_TRANSCRICAO",
+            nullable = false,
+            unique = true
+    )
     private Transcricao transcricao;
+    @Lob
+    @Column(name = "RESUMO")
     private String resumo;
+    @Column(name = "SENTIMENTO", length = 30)
     private String sentimento;
+    @Transient
     private List<Alerta> alertas;
+    @Column(name = "RISCO_CHURN")
     private double riscoChurn;
+    @Column(name = "CLASSIFICACAO", length = 150)
     private String classificacao;
 
     public ResultadoAnalise() {
