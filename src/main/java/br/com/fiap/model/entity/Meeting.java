@@ -1,22 +1,46 @@
 package br.com.fiap.model.entity;
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import java.time.Duration;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@Entity(name = "Meeting")
+@Table(name = "MEETING")
 public class Meeting {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_MEETING")
     private int idMeeting;
+    @Column(name = "DT_MEETING", nullable = false)
     private LocalDateTime dataMeeting;
+    @Column(name = "FORMATO", nullable = false, length = 20)
     private String formato;
+    @Column(name = "STATUS", nullable = false, length = 30)
     private String status;
-    private int duracao;
+    @JdbcTypeCode(SqlTypes.INTERVAL_SECOND)
+    @Column(name = "DURACAO", nullable = false)
+    private Duration duracao;
+    @Transient
     private Transcricao transcricao;
+    @Column(name = "UF", length = 2)
     private String uf;
+    @Column(name = "NOME_SEGMENTO", length = 100)
     private String segmento;
+    @Column(name = "NOTA_NPS")
     private double notaNps;
+    @ManyToMany
+    @JoinTable(
+            name = "MEETING_PALAVRA_CHAVE",
+            joinColumns = @JoinColumn(name = "ID_MEETING"),
+            inverseJoinColumns = @JoinColumn(name = "ID_PALAVRA_CHAVE")
+    )
     private List<PalavraChave> palavrasChave = new ArrayList<>();
 
     public Meeting() {
@@ -79,14 +103,21 @@ public class Meeting {
     }
 
     public int getDuracao() {
-        return duracao;
+        if (duracao == null) {
+            return 0;
+        }
+
+        return Math.toIntExact(duracao.getSeconds());
     }
 
     public void setDuracao(int duracao) {
         if (duracao <= 0) {
-            throw new IllegalArgumentException("A duração deve ser maior que zero.");
+            throw new IllegalArgumentException(
+                    "A duração deve ser maior que zero."
+            );
         }
-        this.duracao = duracao;
+
+        this.duracao = Duration.ofSeconds(duracao);
     }
 
     public Transcricao getTranscricao() {
@@ -170,7 +201,7 @@ public class Meeting {
                         "\nData: " + dataFormatada +
                         "\nFormato: " + formato +
                         "\nStatus: " + status +
-                        "\nDuração: " + duracao + " segundos" +
+                        "\nDuração: " + getDuracao() + " segundos" +
                         "\nUF: " + uf +
                         "\nSegmento: " + segmento+
                         "\nClassificação: " + classificarNps()+
@@ -199,7 +230,7 @@ public class Meeting {
                 ", dataMeeting=" + dataMeeting +
                 ", formato='" + formato + '\'' +
                 ", status='" + status + '\'' +
-                ", duracao=" + duracao +
+                ", duracao=" + getDuracao() +
                 ", uf='" + uf + '\'' +
                 ", segmento='" + segmento + '\'' +
                 ", notaNps=" + notaNps +
