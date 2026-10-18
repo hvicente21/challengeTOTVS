@@ -27,7 +27,7 @@ public class Meeting {
     @JdbcTypeCode(SqlTypes.INTERVAL_SECOND)
     @Column(name = "DURACAO", nullable = false)
     private Duration duracao;
-    @Transient
+    @OneToOne(mappedBy = "meeting")
     private Transcricao transcricao;
     @Column(name = "UF", length = 2)
     private String uf;

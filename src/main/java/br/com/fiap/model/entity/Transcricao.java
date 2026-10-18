@@ -1,13 +1,28 @@
 package br.com.fiap.model.entity;
 
+import jakarta.persistence.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+@Entity(name = "Transcricao")
+@Table(name = "TRANSCRICAO")
 public class Transcricao {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_TRANSCRICAO")
     private int idTranscricao;
+    @OneToOne
+    @JoinColumn(
+            name = "ID_MEETING",
+            nullable = false,
+            unique = true
+    )
     private Meeting meeting;
+    @Lob
+    @Column(name = "TEXTO", nullable = false)
     private String texto;
+    @Transient
     private ResultadoAnalise resultadoAnalise;
 
     public Transcricao() {
