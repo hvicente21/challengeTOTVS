@@ -1,5 +1,6 @@
 package br.com.fiap.model.entity;
 
+import br.com.fiap.model.dto.TranscricaoDTO;
 import jakarta.persistence.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -26,6 +27,11 @@ public class Transcricao {
     private ResultadoAnalise resultadoAnalise;
 
     public Transcricao() {
+    }
+
+    public Transcricao(TranscricaoDTO transcricaoDTO, Meeting meeting) {
+        setMeeting(meeting);
+        setTexto(transcricaoDTO.texto());
     }
 
     public Transcricao(int idTranscricao, Meeting meeting, String texto, ResultadoAnalise resultadoAnalise) {
