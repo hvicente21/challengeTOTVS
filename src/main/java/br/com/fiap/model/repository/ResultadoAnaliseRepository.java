@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ResultadoAnaliseRepository
         extends JpaRepository<ResultadoAnalise, Integer> {
+
+    ResultadoAnalise findByTranscricao_IdTranscricao(int idTranscricao);
 }
