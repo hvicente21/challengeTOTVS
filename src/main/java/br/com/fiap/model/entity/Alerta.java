@@ -1,5 +1,6 @@
 package br.com.fiap.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity(name = "Alerta")
@@ -9,6 +10,7 @@ public class Alerta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_ALERTA")
     private int idAlerta;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(
             name = "ID_RESULTADO_ANALISE",
