@@ -23,7 +23,7 @@ public class ResultadoAnalise {
     private String resumo;
     @Column(name = "SENTIMENTO", length = 30)
     private String sentimento;
-    @Transient
+    @OneToMany(mappedBy = "resultadoAnalise")
     private List<Alerta> alertas;
     @Column(name = "RISCO_CHURN")
     private double riscoChurn;

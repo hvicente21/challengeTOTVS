@@ -1,11 +1,25 @@
 package br.com.fiap.model.entity;
 
+import jakarta.persistence.*;
 
+@Entity(name = "Alerta")
+@Table(name = "ALERTA")
 public class Alerta {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_ALERTA")
     private int idAlerta;
+    @ManyToOne
+    @JoinColumn(
+            name = "ID_RESULTADO_ANALISE",
+            nullable = false
+    )
     private ResultadoAnalise resultadoAnalise;
+    @Column(name = "TIPO_ALERTA", nullable = false, length = 30)
     private String tipoAlerta;
+    @Column(name = "NIVEL_RISCO", length = 20)
     private String nivelRisco;
+    @Column(name = "DESCRICAO", nullable = false, length = 500)
     private String descricao;
 
     public Alerta() {
