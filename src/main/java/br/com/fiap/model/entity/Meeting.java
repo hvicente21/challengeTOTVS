@@ -1,5 +1,6 @@
 package br.com.fiap.model.entity;
 
+import br.com.fiap.model.dto.MeetingDTO;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -44,6 +45,16 @@ public class Meeting {
     private List<PalavraChave> palavrasChave = new ArrayList<>();
 
     public Meeting() {
+    }
+
+    public Meeting(MeetingDTO meetingDTO) {
+        setDataMeeting(meetingDTO.dataMeeting());
+        setFormato(meetingDTO.formato());
+        setStatus(meetingDTO.status());
+        setDuracao(meetingDTO.duracao());
+        setUf(meetingDTO.uf());
+        setSegmento(meetingDTO.segmento());
+        setNotaNps(meetingDTO.notaNps());
     }
 
     public Meeting(int idMeeting, LocalDateTime dataMeeting, String formato, String status, int duracao, Transcricao transcricao, String uf, String segmento, double notaNps, List<PalavraChave> palavrasChave) {
