@@ -25,7 +25,7 @@ public class Transcricao {
     @Column(name = "TEXTO", nullable = false)
     private String texto;
     @JsonIgnore
-    @OneToOne(mappedBy = "transcricao")
+    @Transient
     private ResultadoAnalise resultadoAnalise;
 
     public Transcricao() {

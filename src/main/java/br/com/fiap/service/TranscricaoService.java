@@ -1,5 +1,6 @@
 package br.com.fiap.service;
 
+import br.com.fiap.model.repository.ResultadoAnaliseRepository;
 import org.springframework.transaction.annotation.Transactional;
 import br.com.fiap.model.dto.TranscricaoDTO;
 import br.com.fiap.model.entity.Meeting;
@@ -19,9 +20,10 @@ public class TranscricaoService {
 
     @Autowired
     private TranscricaoRepository transcricaoRepository;
-
     @Autowired
     private MeetingRepository meetingRepository;
+    @Autowired
+    private ResultadoAnaliseRepository resultadoAnaliseRepository;
 
     public Transcricao cadastrar(@Valid TranscricaoDTO transcricaoDTO) {
 
@@ -111,10 +113,11 @@ public class TranscricaoService {
             return false;
         }
 
-        if (transcricao.getResultadoAnalise() != null) {
+        if (resultadoAnaliseRepository
+                .findByTranscricao_IdTranscricao(id) != null) {
+
             return false;
         }
-
         transcricaoRepository.delete(transcricao);
 
         return true;
