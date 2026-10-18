@@ -1,7 +1,7 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.dto.Meeting;
-import br.com.fiap.dto.PalavraChave;
+import br.com.fiap.model.entity.Meeting;
+import br.com.fiap.model.entity.PalavraChave;
 
 import java.sql.*;
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.dto.Meeting;
-import br.com.fiap.dto.Transcricao;
+import br.com.fiap.model.entity.Meeting;
+import br.com.fiap.model.entity.Transcricao;
 
 import java.io.StringReader;
 import java.sql.*;

@@ -12,11 +12,11 @@ import br.com.fiap.dao.ResultadoAnaliseDaoImpl;
 import br.com.fiap.dao.TranscricaoDao;
 import br.com.fiap.dao.TranscricaoDaoImpl;
 
-import br.com.fiap.dto.Alerta;
-import br.com.fiap.dto.Meeting;
-import br.com.fiap.dto.PalavraChave;
-import br.com.fiap.dto.ResultadoAnalise;
-import br.com.fiap.dto.Transcricao;
+import br.com.fiap.model.entity.Alerta;
+import br.com.fiap.model.entity.Meeting;
+import br.com.fiap.model.entity.PalavraChave;
+import br.com.fiap.model.entity.ResultadoAnalise;
+import br.com.fiap.model.entity.Transcricao;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;

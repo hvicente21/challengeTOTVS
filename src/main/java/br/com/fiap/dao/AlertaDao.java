@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.dto.Alerta;
+import br.com.fiap.model.entity.Alerta;
 
 import java.util.List;
 

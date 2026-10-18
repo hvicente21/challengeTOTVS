@@ -1,4 +1,4 @@
-package br.com.fiap.dto;
+package br.com.fiap.model.entity;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

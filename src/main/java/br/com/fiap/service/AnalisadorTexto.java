@@ -1,6 +1,9 @@
 package br.com.fiap.service;
 
-import br.com.fiap.dto.*;
+import br.com.fiap.model.entity.Alerta;
+import br.com.fiap.model.entity.PalavraChave;
+import br.com.fiap.model.entity.ResultadoAnalise;
+import br.com.fiap.model.entity.Transcricao;
 
 import java.util.ArrayList;
 import java.util.Arrays;

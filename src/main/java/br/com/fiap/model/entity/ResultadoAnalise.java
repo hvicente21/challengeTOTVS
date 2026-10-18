@@ -1,4 +1,4 @@
-package br.com.fiap.dto;
+package br.com.fiap.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;

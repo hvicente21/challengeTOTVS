@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.dto.Transcricao;
+import br.com.fiap.model.entity.Transcricao;
 
 import java.util.List;
 

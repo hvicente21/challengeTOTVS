@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.dto.ResultadoAnalise;
+import br.com.fiap.model.entity.ResultadoAnalise;
 
 import java.util.List;
 
