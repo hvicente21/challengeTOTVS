@@ -1,8 +1,16 @@
 package br.com.fiap.model.entity;
+import jakarta.persistence.*;
 
+@Entity(name ="PalavraChave")
+@Table(name = "PALAVRA_CHAVE")
 public class PalavraChave {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_PALAVRA_CHAVE")
     private int idPalavraChave;
+    @Column(name = "PALAVRA", nullable = false, unique = true, length = 100)
     private String palavra;
+
 
     public PalavraChave() {
     }
