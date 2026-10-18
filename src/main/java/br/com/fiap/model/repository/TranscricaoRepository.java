@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TranscricaoRepository
         extends JpaRepository<Transcricao, Integer> {
+
+    Transcricao findByMeeting_IdMeeting(int idMeeting);
 }

@@ -1,5 +1,6 @@
 package br.com.fiap.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import br.com.fiap.model.dto.TranscricaoDTO;
 import br.com.fiap.model.entity.Meeting;
 import br.com.fiap.model.entity.Transcricao;
@@ -33,7 +34,13 @@ public class TranscricaoService {
             return null;
         }
 
-        if (meeting.getTranscricao() != null) {
+        Transcricao transcricaoExistente =
+                transcricaoRepository
+                        .findByMeeting_IdMeeting(
+                                transcricaoDTO.idMeeting()
+                        );
+
+        if (transcricaoExistente != null) {
             return null;
         }
 
@@ -78,9 +85,13 @@ public class TranscricaoService {
             return null;
         }
 
-        if (meeting.getTranscricao() != null &&
-                meeting.getTranscricao().getIdTranscricao() != id) {
+        Transcricao transcricaoExistente =
+                transcricaoRepository
+                        .findByMeeting_IdMeeting(
+                                transcricaoDTO.idMeeting()
+                        );
 
+        if (transcricaoExistente != null) {
             return null;
         }
 
@@ -90,6 +101,7 @@ public class TranscricaoService {
         return transcricaoRepository.save(transcricao);
     }
 
+    @Transactional
     public boolean excluir(int id) {
 
         Transcricao transcricao =
@@ -104,6 +116,7 @@ public class TranscricaoService {
         }
 
         transcricaoRepository.delete(transcricao);
+
         return true;
     }
 }

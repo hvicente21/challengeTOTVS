@@ -3,6 +3,7 @@ package br.com.fiap.service;
 import br.com.fiap.model.dto.MeetingDTO;
 import br.com.fiap.model.entity.Meeting;
 import br.com.fiap.model.repository.MeetingRepository;
+import br.com.fiap.model.repository.TranscricaoRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ public class MeetingService {
 
     @Autowired
     private MeetingRepository meetingRepository;
+    @Autowired
+    private TranscricaoRepository transcricaoRepository;
 
     public Meeting cadastrar(@Valid MeetingDTO meetingDTO) {
         Meeting meeting = new Meeting(meetingDTO);
@@ -59,10 +62,10 @@ public class MeetingService {
             return false;
         }
 
-        if (meeting.getTranscricao() != null) {
+        if (transcricaoRepository
+                .findByMeeting_IdMeeting(id) != null) {
             return false;
         }
-
         meetingRepository.delete(meeting);
         return true;
     }

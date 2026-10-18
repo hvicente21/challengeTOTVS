@@ -36,7 +36,7 @@ public class Meeting {
     )
     private int duracao;
     @JsonIgnore
-    @OneToOne(mappedBy = "meeting")
+    @Transient
     private Transcricao transcricao;
     @Column(name = "UF", length = 2)
     private String uf;
