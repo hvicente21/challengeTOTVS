@@ -1,5 +1,6 @@
 package br.com.fiap.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import br.com.fiap.model.dto.MeetingDTO;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -28,6 +29,7 @@ public class Meeting {
     @JdbcTypeCode(SqlTypes.INTERVAL_SECOND)
     @Column(name = "DURACAO", nullable = false)
     private Duration duracao;
+    @JsonIgnore
     @OneToOne(mappedBy = "meeting")
     private Transcricao transcricao;
     @Column(name = "UF", length = 2)

@@ -53,11 +53,17 @@ public class MeetingService {
     }
 
     public boolean excluir(int id) {
-        if (id <= 0 || !meetingRepository.existsById(id)) {
+        Meeting meeting = buscarPorId(id);
+
+        if (meeting == null) {
             return false;
         }
 
-        meetingRepository.deleteById(id);
+        if (meeting.getTranscricao() != null) {
+            return false;
+        }
+
+        meetingRepository.delete(meeting);
         return true;
     }
 }
