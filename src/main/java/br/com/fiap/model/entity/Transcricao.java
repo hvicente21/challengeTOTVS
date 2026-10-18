@@ -1,5 +1,6 @@
 package br.com.fiap.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import br.com.fiap.model.dto.TranscricaoDTO;
 import jakarta.persistence.*;
 import java.io.BufferedReader;
@@ -23,6 +24,7 @@ public class Transcricao {
     @Lob
     @Column(name = "TEXTO", nullable = false)
     private String texto;
+    @JsonIgnore
     @OneToOne(mappedBy = "transcricao")
     private ResultadoAnalise resultadoAnalise;
 
