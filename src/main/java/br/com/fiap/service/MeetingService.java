@@ -1,5 +1,7 @@
 package br.com.fiap.service;
 
+import br.com.fiap.model.entity.PalavraChave;
+import br.com.fiap.model.repository.PalavraChaveRepository;
 import br.com.fiap.model.dto.MeetingDTO;
 import br.com.fiap.model.entity.Meeting;
 import br.com.fiap.model.repository.MeetingRepository;
@@ -19,6 +21,8 @@ public class MeetingService {
     private MeetingRepository meetingRepository;
     @Autowired
     private TranscricaoRepository transcricaoRepository;
+    @Autowired
+    private PalavraChaveRepository palavraChaveRepository;
 
     public Meeting cadastrar(@Valid MeetingDTO meetingDTO) {
         Meeting meeting = new Meeting(meetingDTO);
@@ -68,5 +72,71 @@ public class MeetingService {
         }
         meetingRepository.delete(meeting);
         return true;
+    }
+
+    public Meeting adicionarPalavraChave(
+            int idMeeting,
+            int idPalavraChave) {
+
+        Meeting meeting =
+                buscarPorId(idMeeting);
+
+        if (meeting == null) {
+            return null;
+        }
+
+        PalavraChave palavraChave =
+                palavraChaveRepository
+                        .findById(idPalavraChave)
+                        .orElse(null);
+
+        if (palavraChave == null) {
+            return null;
+        }
+
+        meeting.adicionarPalavraChave(
+                palavraChave
+        );
+
+        return meetingRepository.save(
+                meeting
+        );
+    }
+
+    public Meeting removerPalavraChave(
+            int idMeeting,
+            int idPalavraChave) {
+
+        Meeting meeting =
+                buscarPorId(idMeeting);
+
+        if (meeting == null) {
+            return null;
+        }
+
+        PalavraChave palavraChave =
+                palavraChaveRepository
+                        .findById(idPalavraChave)
+                        .orElse(null);
+
+        if (palavraChave == null) {
+            return null;
+        }
+
+        boolean removida =
+                meeting.getPalavrasChave()
+                        .removeIf(
+                                palavra ->
+                                        palavra.getIdPalavraChave()
+                                                == idPalavraChave
+                        );
+
+        if (!removida) {
+            return null;
+        }
+
+        return meetingRepository.save(
+                meeting
+        );
     }
 }
