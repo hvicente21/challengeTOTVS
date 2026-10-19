@@ -1,4 +1,6 @@
 package br.com.fiap.model.entity;
+
+import br.com.fiap.model.dto.PalavraChaveDTO;
 import jakarta.persistence.*;
 
 @Entity(name ="PalavraChave")
@@ -13,6 +15,10 @@ public class PalavraChave {
 
 
     public PalavraChave() {
+    }
+
+    public PalavraChave(PalavraChaveDTO palavraChaveDTO) {
+        setPalavra(palavraChaveDTO.palavra());
     }
 
     public PalavraChave(String palavra, int idPalavraChave) {
