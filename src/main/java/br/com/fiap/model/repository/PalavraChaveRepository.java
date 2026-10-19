@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PalavraChaveRepository
         extends JpaRepository<PalavraChave, Integer> {
 
-    PalavraChave findByPalavra(String palavra);
+    PalavraChave findByPalavraIgnoreCase(String palavra);
 }
