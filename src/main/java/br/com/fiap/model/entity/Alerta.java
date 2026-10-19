@@ -1,5 +1,6 @@
 package br.com.fiap.model.entity;
 
+import br.com.fiap.model.dto.AlertaDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -26,6 +27,17 @@ public class Alerta {
 
     public Alerta() {
     }
+
+    public Alerta(
+            AlertaDTO alertaDTO,
+            ResultadoAnalise resultadoAnalise) {
+
+        setResultadoAnalise(resultadoAnalise);
+        setTipoAlerta(alertaDTO.tipoAlerta());
+        setNivelRisco(alertaDTO.nivelRisco());
+        setDescricao(alertaDTO.descricao());
+    }
+
     public Alerta(int idAlerta, ResultadoAnalise resultadoAnalise, String tipoAlerta, String nivelRisco, String descricao) {
         this.idAlerta = idAlerta;
         this.resultadoAnalise = resultadoAnalise;
