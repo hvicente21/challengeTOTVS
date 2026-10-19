@@ -1,5 +1,6 @@
 package br.com.fiap.service;
 
+import org.springframework.stereotype.Service;
 import br.com.fiap.model.entity.Alerta;
 import br.com.fiap.model.entity.PalavraChave;
 import br.com.fiap.model.entity.ResultadoAnalise;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Service
 public class AnalisadorTexto {
 
     private List<String> palavrasPositivas;
