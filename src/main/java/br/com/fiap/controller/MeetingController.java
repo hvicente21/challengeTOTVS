@@ -116,4 +116,48 @@ public class MeetingController {
                         "Não é possível remover a Meeting enquanto existir uma transcrição vinculada."
                 );
     }
+
+    @PostMapping("/{idMeeting}/palavras-chave/{idPalavraChave}")
+    public ResponseEntity<?> adicionarPalavraChave(
+            @PathVariable int idMeeting,
+            @PathVariable int idPalavraChave) {
+
+        Meeting meeting =
+                meetingService.adicionarPalavraChave(
+                        idMeeting,
+                        idPalavraChave
+                );
+
+        if (meeting != null) {
+            return ResponseEntity.ok(meeting);
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        "Meeting ou Palavra-chave não encontrada."
+                );
+    }
+
+    @DeleteMapping("/{idMeeting}/palavras-chave/{idPalavraChave}")
+    public ResponseEntity<?> removerPalavraChave(
+            @PathVariable int idMeeting,
+            @PathVariable int idPalavraChave) {
+
+        Meeting meeting =
+                meetingService.removerPalavraChave(
+                        idMeeting,
+                        idPalavraChave
+                );
+
+        if (meeting != null) {
+            return ResponseEntity.ok(meeting);
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        "Meeting, Palavra-chave ou vínculo não encontrado."
+                );
+    }
 }
