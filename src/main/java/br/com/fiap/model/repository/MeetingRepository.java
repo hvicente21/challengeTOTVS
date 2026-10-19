@@ -5,4 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MeetingRepository
         extends JpaRepository<Meeting, Integer> {
+
+    boolean existsByPalavrasChave_IdPalavraChave(
+            int idPalavraChave
+    );
 }
