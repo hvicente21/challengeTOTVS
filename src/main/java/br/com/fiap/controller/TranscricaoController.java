@@ -1,5 +1,7 @@
 package br.com.fiap.controller;
 
+import br.com.fiap.model.entity.ResultadoAnalise;
+import br.com.fiap.service.AnaliseAutomaticaService;
 import br.com.fiap.model.dto.TranscricaoDTO;
 import br.com.fiap.model.entity.Transcricao;
 import br.com.fiap.service.TranscricaoService;
@@ -17,6 +19,8 @@ public class TranscricaoController {
 
     @Autowired
     private TranscricaoService transcricaoService;
+    @Autowired
+    private AnaliseAutomaticaService analiseAutomaticaService;
 
     @PostMapping
     public ResponseEntity<?> cadastrar(
@@ -134,5 +138,47 @@ public class TranscricaoController {
                 .body(
                         "Não é possível remover a Transcrição enquanto existir um resultado de análise vinculado."
                 );
+    }
+
+    @PostMapping("/{id}/analisar")
+    public ResponseEntity<?> analisar(
+            @PathVariable int id) {
+
+        Transcricao transcricao =
+                transcricaoService.buscarPorId(id);
+
+        if (transcricao == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(
+                            "Transcrição não encontrada."
+                    );
+        }
+
+        try {
+
+            ResultadoAnalise resultadoAnalise =
+                    analiseAutomaticaService.analisar(id);
+
+            if (resultadoAnalise != null) {
+                return ResponseEntity.ok(
+                        resultadoAnalise
+                );
+            }
+
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(
+                            "A Transcrição já possui um resultado de análise."
+                    );
+
+        } catch (Exception e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(
+                            "Erro ao analisar Transcrição."
+                    );
+        }
     }
 }
