@@ -96,9 +96,7 @@ public class AnaliseAutomaticaService {
                             meeting.getPalavrasChave()
                     );
 
-            meeting.setPalavrasChave(
-                    new ArrayList<>()
-            );
+            meeting.getPalavrasChave().clear();
 
             for (PalavraChave palavraChave :
                     palavrasEncontradas) {
